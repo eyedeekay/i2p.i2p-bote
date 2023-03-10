@@ -33,14 +33,17 @@ class KademliaPeer extends Destination {
     private long lockedUntil;
     
     KademliaPeer(Destination destination, long lastReception) {
+        Log log = new Log(KademliaPeer.class);
         // initialize the Destination part of the KademliaPeer
-        setCertificate(destination.getCertificate());
-        setSigningPublicKey(destination.getSigningPublicKey());
-        setPublicKey(destination.getPublicKey());
+        try {
+            super.fromByteArray(destination.toByteArray());
+        }
+        catch (DataFormatException e) {
+            log.error("Can't crate from destination!");
+        }
         
         // initialize KademliaPeer-specific fields
         destinationHash = destination.calculateHash();
-        Log log = new Log(KademliaPeer.class);
         if (destinationHash == null)
             log.error("calculateHash() returned null!");
         

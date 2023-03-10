@@ -25,7 +25,9 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import net.i2p.data.DataFormatException;
 import net.i2p.data.Destination;
+import net.i2p.util.Log;
 
 /**
  * A {@link Destination} that contains information about the most
@@ -48,10 +50,14 @@ public class RelayPeer extends Destination {
      * @param destination
      */
     public RelayPeer(Destination destination) {
+        Log log = new Log(RelayPeer.class);
         // initialize the Destination part of the RelayPeer
-        setCertificate(destination.getCertificate());
-        setSigningPublicKey(destination.getSigningPublicKey());
-        setPublicKey(destination.getPublicKey());
+        try {
+            super.fromByteArray(destination.toByteArray());
+        }
+        catch (net.i2p.data.DataFormatException e) {
+            log.error("Can't crate from destination!");
+        }
         
         // initialize RelayPeer-specific data
         samples = new LinkedList<>();

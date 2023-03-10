@@ -222,12 +222,31 @@ public class Util {
      * @throws DataFormatException 
      */
     public static Destination createDestination(ByteBuffer buffer) throws DataFormatException {
-        byte[] bytes = new byte[388];
-        // read 384 bytes, leave the last 3 bytes zero
-        // TODO This is NOT compatible with newer key types!
-        buffer.get(bytes, 0, 384);
+        byte[] standart_dest = new byte[384];
+        buffer.get(standart_dest, 0, 384);
+        byte cert_type = buffer.get();
+        int cert_len = buffer.getShort() & 0xFFFF;
+        //int extra_len = buffer.getShort() & 0xFFFF;
+
+        byte[] bytes = Arrays.copyOf(standart_dest, 384 + 3 + cert_len);
+
+        byte[] b_cert = new byte[3];
+        b_cert[0] = cert_type;
+        b_cert[1] = (byte) (cert_len & 0xff);
+        b_cert[2] = (byte) ((cert_len >> 8) & 0xff);
+
+        System.arraycopy(b_cert, 0, bytes, 384, 3);
+
+        if (cert_len > 0) {
+            byte[] extra_data = new byte[cert_len];
+            buffer.get(extra_data, 0, cert_len);
+
+            System.arraycopy(extra_data, 0, bytes, 384 + 3, cert_len);
+        }
+
         Destination peer = new Destination();
-        peer.readBytes(bytes, 0);
+        peer.fromByteArray(bytes);
+
         return peer;
     }
     
