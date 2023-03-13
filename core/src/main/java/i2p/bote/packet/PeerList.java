@@ -74,10 +74,8 @@ public class PeerList extends DataPacket {
         try {
             writeHeader(dataStream);
             dataStream.writeShort(peers.size());
-            for (Destination peer: peers) {
-                byte[] pr = peer.toByteArray();
-                dataStream.write(pr, 0, pr.length);
-            }
+            for (Destination peer: peers)
+                dataStream.write(peer.toByteArray());
         }
         catch (IOException e) {
             log.error("Can't write to ByteArrayOutputStream.", e);

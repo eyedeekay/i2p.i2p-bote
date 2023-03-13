@@ -222,11 +222,15 @@ public class Util {
      * @throws DataFormatException 
      */
     public static Destination createDestination(ByteBuffer buffer) throws DataFormatException {
+        // public key = 256  \ _384
+        // signing key = 128 /
+        // certificate = (1 for type) + (2 for extra length) = 3
+        // extra data = from 0 to <extra length>
+
         byte[] standart_dest = new byte[384];
         buffer.get(standart_dest, 0, 384);
         byte cert_type = buffer.get();
         int cert_len = buffer.getShort() & 0xFFFF;
-        //int extra_len = buffer.getShort() & 0xFFFF;
 
         byte[] bytes = Arrays.copyOf(standart_dest, 384 + 3 + cert_len);
 
